@@ -46,7 +46,7 @@ function binarySearch(arr, target) {
 console.log(binarySearch([1, 2, 3, 4, 5], 4)); // Output: 3
 ```
 
-**Explanation**: Searches for a target in a sorted array using a divide-and-conquer approach (Time complexity: O(log n)).
+**Explanation**: Searches for a target in a sorted array using a divide-and-conquer approach.
 
 ## 4. Fibonacci Sequence (Recursive)
 
@@ -61,7 +61,7 @@ console.log(fibonacci(6)); // Output: 8
 
 **Explanation**: Generates the nth Fibonacci number recursively by summing the two preceding numbers.
 
-⚠️ **Note**: This approach has exponential time complexity O(2^n) and is inefficient for large inputs. Use memoization or iteration for better performance.
+⚠️ **Note**: This approach has exponential time complexity `O(2^n)` and is inefficient for large inputs.
 
 ## 5. Factorial of a Number
 
@@ -102,7 +102,7 @@ function findMax(arr) {
 console.log(findMax([1, 2, 3, 4, 5])); // Output: 5
 ```
 
-**Explanation**: Finds the largest number in an array using the `Math.max` function and the spread operator.
+**Explanation**: Finds the largest number in an array using the `Math.max` function and spread operator.
 
 ## 8. Merge Two Sorted Arrays
 
@@ -111,11 +111,9 @@ function mergeSortedArrays(arr1, arr2) {
   let merged = [], i = 0, j = 0;
   while (i < arr1.length && j < arr2.length) {
     if (arr1[i] < arr2[j]) {
-      merged.push(arr1[i]);
-      i++;
+      merged.push(arr1[i++]);
     } else {
-      merged.push(arr2[j]);
-      j++;
+      merged.push(arr2[j++]);
     }
   }
   return merged.concat(arr1.slice(i)).concat(arr2.slice(j));
@@ -143,7 +141,7 @@ function bubbleSort(arr) {
 console.log(bubbleSort([5, 3, 8, 4, 2])); // Output: [2, 3, 4, 5, 8]
 ```
 
-**Explanation**: Sorts an array by repeatedly swapping adjacent elements if they are in the wrong order (Time complexity: O(n²)).
+**Explanation**: Sorts an array by repeatedly swapping adjacent elements if they are in the wrong order.
 
 ## 10. Find the GCD (Greatest Common Divisor)
 
@@ -156,4 +154,90 @@ function gcd(a, b) {
 console.log(gcd(48, 18)); // Output: 6
 ```
 
-**Explanation**: Uses the Euclidean algorithm to compute the greatest common divisor of two numbers (Time complexity: O(log min(a, b))).
+**Explanation**: Uses the Euclidean algorithm to compute the greatest common divisor.
+
+## 11. Two Sum (Using Hash Map)
+
+```js
+function twoSum(nums, target) {
+  const map = new Map();
+  for (let i = 0; i < nums.length; i++) {
+    const complement = target - nums[i];
+    if (map.has(complement)) return [map.get(complement), i];
+    map.set(nums[i], i);
+  }
+  return [];
+}
+
+console.log(twoSum([2, 7, 11, 15], 9)); // Output: [0, 1]
+```
+
+**Explanation**: Finds two indices such that their values sum to the target using a hash map.
+
+## 12. Anagram Check
+
+```js
+function isAnagram(str1, str2) {
+  const normalize = (str) => str.split("").sort().join("");
+  return normalize(str1) === normalize(str2);
+}
+
+console.log(isAnagram("listen", "silent")); // Output: true
+```
+
+**Explanation**: Determines if two strings are anagrams by sorting and comparing them.
+
+## 13. Character Frequency Counter
+
+```js
+function charFrequency(str) {
+  const freq = {};
+  for (let char of str) {
+    freq[char] = (freq[char] || 0) + 1;
+  }
+  return freq;
+}
+
+console.log(charFrequency("hello")); // Output: { h: 1, e: 1, l: 2, o: 1 }
+```
+
+**Explanation**: Counts how often each character appears in a string.
+
+## 14. Quick Sort
+
+```js
+function quickSort(arr) {
+  if (arr.length <= 1) return arr;
+  const pivot = arr[arr.length - 1];
+  const left = [],
+        right = [];
+  for (let i = 0; i < arr.length - 1; i++) {
+    if (arr[i] < pivot) left.push(arr[i]);
+    else right.push(arr[i]);
+  }
+  return [...quickSort(left), pivot, ...quickSort(right)];
+}
+
+console.log(quickSort([3, 6, 8, 10, 1, 2, 1])); // Output: [1, 1, 2, 3, 6, 8, 10]
+```
+
+**Explanation**: A divide-and-conquer sorting algorithm with an average-case time complexity of `O(n log n)`.
+
+## 15. Debounce Function
+
+```js
+function debounce(fn, delay) {
+  let timer;
+  return function (...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, args), delay);
+  };
+}
+
+const log = debounce(() => console.log("Debounced!"), 300);
+log();
+log();
+log(); // Logs once after 300ms of inactivity
+```
+
+**Explanation**: Limits the rate at which a function can fire, commonly used in event handling (e.g., input, scroll).
