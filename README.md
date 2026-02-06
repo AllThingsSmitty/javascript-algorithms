@@ -36,6 +36,17 @@ This repository contains a curated list of JavaScript algorithms, organized by c
 
 - [Find Maximum in Array](#find-maximum-in-array)
 
+### Data Structures
+
+- [Linked List](#linked-list)
+- [Stack](#stack)
+- [Queue](#queue)
+
+### Graph Algorithms
+
+- [Depth-First Search (DFS)](#depth-first-search-dfs)
+- [Breadth-First Search (BFS)](#breadth-first-search-bfs)
+
 ### Utility Functions
 
 - [Debounce Function](#debounce-function)
@@ -307,27 +318,33 @@ console.log(binarySearch([1, 2, 3, 4, 5], 4)); // Output: 3
 
 ```js
 /**
- * Sorts an array using bubble sort algorithm
+ * Sorts an array using bubble sort algorithm with early exit optimization
  * @param {number[]} arr - Array to sort
  * @returns {number[]} Sorted array
+ * Time Complexity: O(n²) worst/average case, O(n) best case
+ * Space Complexity: O(n)
  */
 function bubbleSort(arr) {
   if (!Array.isArray(arr)) throw new TypeError("Input must be an array");
   const sorted = [...arr]; // Create copy to avoid mutating original
   for (let i = 0; i < sorted.length; i++) {
+    let swapped = false; // Optimization: early exit if already sorted
     for (let j = 0; j < sorted.length - i - 1; j++) {
       if (sorted[j] > sorted[j + 1]) {
         [sorted[j], sorted[j + 1]] = [sorted[j + 1], sorted[j]];
+        swapped = true;
       }
     }
+    if (!swapped) break; // Array is already sorted
   }
   return sorted;
 }
 
 console.log(bubbleSort([5, 3, 8, 4, 2])); // Output: [2, 3, 4, 5, 8]
+console.log(bubbleSort([1, 2, 3, 4, 5])); // Exits early (already sorted)
 ```
 
-**Explanation**: Sorts an array by repeatedly swapping adjacent elements. Modern version uses array spread to avoid mutating the original array.
+**Explanation**: Sorts by repeatedly swapping adjacent elements. Optimized with a `swapped` flag to exit early when the array is already sorted, improving best-case complexity to O(n).
 
 <sup>[Back to top](#algorithms)</sup>
 
@@ -335,24 +352,44 @@ console.log(bubbleSort([5, 3, 8, 4, 2])); // Output: [2, 3, 4, 5, 8]
 
 ```js
 /**
- * Sorts an array using quick sort algorithm
+ * Sorts an array using in-place quick sort algorithm
  * @param {number[]} arr - Array to sort
  * @returns {number[]} Sorted array
+ * Time Complexity: O(n log n) average, O(n²) worst case
+ * Space Complexity: O(log n) due to recursion stack
  */
 function quickSort(arr) {
   if (!Array.isArray(arr)) throw new TypeError("Input must be an array");
-  if (arr.length <= 1) return arr;
-  const pivot = arr[Math.floor(arr.length / 2)];
-  const left = arr.filter((x) => x < pivot);
-  const middle = arr.filter((x) => x === pivot);
-  const right = arr.filter((x) => x > pivot);
-  return [...quickSort(left), ...middle, ...quickSort(right)];
+  const sorted = [...arr]; // Work on copy to avoid mutation
+  quickSortInPlace(sorted, 0, sorted.length - 1);
+  return sorted;
+}
+
+function quickSortInPlace(arr, low, high) {
+  if (low < high) {
+    const pi = partition(arr, low, high);
+    quickSortInPlace(arr, low, pi - 1);
+    quickSortInPlace(arr, pi + 1, high);
+  }
+}
+
+function partition(arr, low, high) {
+  const pivot = arr[high];
+  let i = low - 1;
+  for (let j = low; j < high; j++) {
+    if (arr[j] < pivot) {
+      i++;
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+  }
+  [arr[i + 1], arr[high]] = [arr[high], arr[i + 1]];
+  return i + 1;
 }
 
 console.log(quickSort([3, 6, 8, 10, 1, 2, 1])); // Output: [1, 1, 2, 3, 6, 8, 10]
 ```
 
-**Explanation**: A divide-and-conquer sorting algorithm with `O(n log n)` average-case complexity. Uses middle pivot to handle duplicates better, and maintains immutability.
+**Explanation**: Divide-and-conquer in-place sorting with Hoare partition scheme. Uses O(log n) space instead of O(n), making it more memory-efficient. Better for interview discussions about space optimization.
 
 <sup>[Back to top](#algorithms)</sup>
 
@@ -466,5 +503,440 @@ log(); // Logs once after 300ms of inactivity
 ```
 
 **Explanation**: Limits rate at which a function fires. Classic callback version and modern async/Promise version for modern use cases. Includes parameter validation.
+
+<sup>[Back to top](#algorithms)</sup>
+
+## Data Structures
+
+### Linked List
+
+```js
+/**
+ * Node class for LinkedList
+ */
+class Node {
+  constructor(data) {
+    this.data = data;
+    this.next = null;
+  }
+}
+
+/**
+ * Singly Linked List implementation
+ */
+class LinkedList {
+  constructor() {
+    this.head = null;
+  }
+
+  /**
+   * Inserts a value at the beginning
+   * @param {*} data - Value to insert
+   * Time Complexity: O(1)
+   */
+  insertAtHead(data) {
+    const newNode = new Node(data);
+    newNode.next = this.head;
+    this.head = newNode;
+  }
+
+  /**
+   * Searches for a value in the list
+   * @param {*} data - Value to search for
+   * @returns {boolean} True if found
+   * Time Complexity: O(n)
+   */
+  search(data) {
+    let current = this.head;
+    while (current) {
+      if (current.data === data) return true;
+      current = current.next;
+    }
+    return false;
+  }
+
+  /**
+   * Deletes first occurrence of a value
+   * @param {*} data - Value to delete
+   * Time Complexity: O(n)
+   */
+  delete(data) {
+    if (!this.head) return;
+    if (this.head.data === data) {
+      this.head = this.head.next;
+      return;
+    }
+    let current = this.head;
+    while (current.next) {
+      if (current.next.data === data) {
+        current.next = current.next.next;
+        return;
+      }
+      current = current.next;
+    }
+  }
+
+  /**
+   * Reverses the linked list in-place
+   * Time Complexity: O(n)
+   */
+  reverse() {
+    let prev = null;
+    let current = this.head;
+    while (current) {
+      const next = current.next;
+      current.next = prev;
+      prev = current;
+      current = next;
+    }
+    this.head = prev;
+  }
+
+  /**
+   * Converts list to array for easy viewing
+   * @returns {Array}
+   */
+  toArray() {
+    const result = [];
+    let current = this.head;
+    while (current) {
+      result.push(current.data);
+      current = current.next;
+    }
+    return result;
+  }
+}
+
+// Usage
+const list = new LinkedList();
+list.insertAtHead(3);
+list.insertAtHead(2);
+list.insertAtHead(1);
+console.log(list.toArray()); // Output: [1, 2, 3]
+console.log(list.search(2)); // Output: true
+list.reverse();
+console.log(list.toArray()); // Output: [3, 2, 1]
+```
+
+**Explanation**: Fundamental data structure with insert, search, delete, and reverse operations. Essential for interviews to understand pointers and node traversal.
+
+<sup>[Back to top](#algorithms)</sup>
+
+### Stack
+
+```js
+/**
+ * Stack implementation (Last-In-First-Out)
+ * Time Complexity: O(1) for push/pop/peek
+ * Space Complexity: O(n)
+ */
+class Stack {
+  constructor() {
+    this.items = [];
+  }
+
+  /**
+   * Adds element to top of stack
+   * @param {*} element - Value to push
+   */
+  push(element) {
+    this.items.push(element);
+  }
+
+  /**
+   * Removes and returns element from top
+   * @returns {*} Removed element or undefined
+   */
+  pop() {
+    return this.items.length === 0 ? undefined : this.items.pop();
+  }
+
+  /**
+   * Views top element without removing
+   * @returns {*} Top element or undefined
+   */
+  peek() {
+    return this.items.length === 0
+      ? undefined
+      : this.items[this.items.length - 1];
+  }
+
+  /**
+   * Checks if stack is empty
+   * @returns {boolean}
+   */
+  isEmpty() {
+    return this.items.length === 0;
+  }
+
+  /**
+   * Returns size of stack
+   * @returns {number}
+   */
+  size() {
+    return this.items.length;
+  }
+
+  /**
+   * Clears the stack
+   */
+  clear() {
+    this.items = [];
+  }
+
+  /**
+   * Converts stack to array
+   * @returns {Array}
+   */
+  toArray() {
+    return [...this.items];
+  }
+}
+
+// Usage
+const stack = new Stack();
+stack.push(10);
+stack.push(20);
+stack.push(30);
+console.log(stack.peek()); // Output: 30
+console.log(stack.pop()); // Output: 30
+console.log(stack.size()); // Output: 2
+```
+
+**Explanation**: LIFO data structure critical for parsing, undo/redo, and function call management. Classic interview topic with applications in parenthesis matching and expression evaluation.
+
+<sup>[Back to top](#algorithms)</sup>
+
+### Queue
+
+```js
+/**
+ * Queue implementation (First-In-First-Out)
+ * Time Complexity: O(1) for enqueue/dequeue/peek
+ * Space Complexity: O(n)
+ */
+class Queue {
+  constructor() {
+    this.items = [];
+  }
+
+  /**
+   * Adds element to back of queue
+   * @param {*} element - Value to enqueue
+   */
+  enqueue(element) {
+    this.items.push(element);
+  }
+
+  /**
+   * Removes and returns element from front
+   * @returns {*} Removed element or undefined
+   */
+  dequeue() {
+    return this.items.length === 0 ? undefined : this.items.shift();
+  }
+
+  /**
+   * Views front element without removing
+   * @returns {*} Front element or undefined
+   */
+  peek() {
+    return this.items.length === 0 ? undefined : this.items[0];
+  }
+
+  /**
+   * Checks if queue is empty
+   * @returns {boolean}
+   */
+  isEmpty() {
+    return this.items.length === 0;
+  }
+
+  /**
+   * Returns size of queue
+   * @returns {number}
+   */
+  size() {
+    return this.items.length;
+  }
+
+  /**
+   * Clears the queue
+   */
+  clear() {
+    this.items = [];
+  }
+
+  /**
+   * Converts queue to array
+   * @returns {Array}
+   */
+  toArray() {
+    return [...this.items];
+  }
+}
+
+// Usage
+const queue = new Queue();
+queue.enqueue(1);
+queue.enqueue(2);
+queue.enqueue(3);
+console.log(queue.peek()); // Output: 1
+console.log(queue.dequeue()); // Output: 1
+console.log(queue.size()); // Output: 2
+```
+
+**Explanation**: FIFO data structure essential for BFS, task scheduling, and buffering. Note: JavaScript arrays' `shift()` is O(n), so for production use a circular array or linked-list implementation.
+
+<sup>[Back to top](#algorithms)</sup>
+
+## Graph Algorithms
+
+### Depth-First Search (DFS)
+
+```js
+/**
+ * Depth-First Search traversal
+ * @param {Object} graph - Adjacency list representation
+ * @param {string|number} start - Starting vertex
+ * @returns {Array} Order of visited vertices
+ * Time Complexity: O(V + E) where V = vertices, E = edges
+ * Space Complexity: O(V) for recursion stack
+ */
+function dfs(graph, start) {
+  if (!graph || !(start in graph)) {
+    throw new TypeError("Invalid graph or start vertex");
+  }
+  const visited = new Set();
+  const result = [];
+
+  function explore(vertex) {
+    if (visited.has(vertex)) return;
+    visited.add(vertex);
+    result.push(vertex);
+    for (const neighbor of graph[vertex]) {
+      explore(neighbor);
+    }
+  }
+
+  explore(start);
+  return result;
+}
+
+// Iterative DFS with explicit stack
+function dfsIterative(graph, start) {
+  if (!graph || !(start in graph)) {
+    throw new TypeError("Invalid graph or start vertex");
+  }
+  const visited = new Set();
+  const result = [];
+  const stack = [start];
+
+  while (stack.length > 0) {
+    const vertex = stack.pop();
+    if (!visited.has(vertex)) {
+      visited.add(vertex);
+      result.push(vertex);
+      // Add neighbors in reverse for left-to-right traversal
+      for (let i = graph[vertex].length - 1; i >= 0; i--) {
+        if (!visited.has(graph[vertex][i])) {
+          stack.push(graph[vertex][i]);
+        }
+      }
+    }
+  }
+  return result;
+}
+
+// Usage
+const graph = {
+  A: ["B", "C"],
+  B: ["A", "D"],
+  C: ["A", "D"],
+  D: ["B", "C", "E"],
+  E: ["D"],
+};
+
+console.log(dfs(graph, "A")); // Output: ["A", "B", "D", "C", "E"]
+console.log(dfsIterative(graph, "A")); // Output: ["A", "C", "D", "E", "B"]
+```
+
+**Explanation**: Explores graph deeply before backtracking. Recursive version is elegant; iterative version avoids stack overflow on large graphs. Used for cycle detection, topological sorting, and connected components.
+
+<sup>[Back to top](#algorithms)</sup>
+
+### Breadth-First Search (BFS)
+
+```js
+/**
+ * Breadth-First Search traversal
+ * @param {Object} graph - Adjacency list representation
+ * @param {string|number} start - Starting vertex
+ * @returns {Array} Order of visited vertices (level-by-level)
+ * Time Complexity: O(V + E) where V = vertices, E = edges
+ * Space Complexity: O(V) for queue
+ */
+function bfs(graph, start) {
+  if (!graph || !(start in graph)) {
+    throw new TypeError("Invalid graph or start vertex");
+  }
+  const visited = new Set([start]);
+  const queue = [start];
+  const result = [];
+
+  while (queue.length > 0) {
+    const vertex = queue.shift();
+    result.push(vertex);
+    for (const neighbor of graph[vertex]) {
+      if (!visited.has(neighbor)) {
+        visited.add(neighbor);
+        queue.push(neighbor);
+      }
+    }
+  }
+  return result;
+}
+
+// BFS to find shortest path
+function bfsShortestPath(graph, start, end) {
+  if (!graph || !(start in graph) || !(end in graph)) {
+    throw new TypeError("Invalid graph or vertices");
+  }
+  if (start === end) return [start];
+
+  const visited = new Set([start]);
+  const queue = [[start]];
+
+  while (queue.length > 0) {
+    const path = queue.shift();
+    const vertex = path[path.length - 1];
+
+    for (const neighbor of graph[vertex]) {
+      if (neighbor === end) {
+        return [...path, neighbor];
+      }
+      if (!visited.has(neighbor)) {
+        visited.add(neighbor);
+        queue.push([...path, neighbor]);
+      }
+    }
+  }
+  return null; // No path found
+}
+
+// Usage
+const graph = {
+  A: ["B", "C"],
+  B: ["A", "D"],
+  C: ["A", "D"],
+  D: ["B", "C", "E"],
+  E: ["D"],
+};
+
+console.log(bfs(graph, "A")); // Output: ["A", "B", "C", "D", "E"]
+console.log(bfsShortestPath(graph, "A", "E")); // Output: ["A", "C", "D", "E"]
+```
+
+**Explanation**: Explores graph level-by-level, ideal for finding shortest paths and closest elements. Uses queue (FIFO). Less common than DFS for most problems but essential for shortest-path and connectivity queries.
 
 <sup>[Back to top](#algorithms)</sup>
